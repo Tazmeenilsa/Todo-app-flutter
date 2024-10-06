@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:todo_app/components/floatingButton.dart';
 import 'package:todo_app/screens/todo.dart';
 
 class Home extends StatefulWidget {
@@ -11,8 +12,6 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   List todoList = [
     ['Learn Flutter', false],
-    ['Learn Nextjs', false],
-    // ['Learn Tailwind Css', false],
   ];
   final textController = TextEditingController();
   final editTextController = TextEditingController();
@@ -22,9 +21,19 @@ class _HomeState extends State<Home> {
     });
   }
 
+  // Function to convert string to title case
+  String toTitleCase(String text) {
+    return text.split(' ').map((word) {
+      if (word.isEmpty) return '';
+      return word[0].toUpperCase() + word.substring(1).toLowerCase();
+    }).join(' ');
+  }
+
   void addNewTask() {
     setState(() {
-      todoList.add([textController.text, false]);
+      String titleCasedTask = toTitleCase(textController.text);
+
+      todoList.add([titleCasedTask, false]);
       textController.clear();
     });
   }
@@ -45,57 +54,31 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.teal,
-        title: const Text(
-          'Todo App',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        appBar: AppBar(
+          backgroundColor: Colors.teal,
+          title: const Text(
+            'Todo App',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+          centerTitle: true,
         ),
-        centerTitle: true,
-      ),
-      body: ListView.builder(
-          itemCount: todoList.length,
-          itemBuilder: (BuildContext context, int index) {
-            return Todo(
-                taskName: todoList[index][0],
-                taskCompleted: todoList[index][1],
-                onTaskChanged: (value) => onChanged(index),
-                deleteTask: () => onDeleteTask(index),
-                onUpdateTask: () => onUpdateTask(index),
-                editTextController: editTextController);
-          }),
-      floatingActionButton: Row(
-        children: [
-          Expanded(
-              child: Padding(
-            padding:
-                const EdgeInsets.only(top: 0, bottom: 0, right: 10, left: 25),
-            child: TextField(
-              controller: textController,
-              decoration: InputDecoration(
-                hintText: 'Add a new Todo items',
-                filled: true,
-                fillColor: Color.fromARGB(255, 194, 243, 232),
-                enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
-                    borderSide: const BorderSide(color: Colors.teal)),
-                focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
-                    borderSide: const BorderSide(color: Colors.teal)),
-              ),
-            ),
-          )),
-          FloatingActionButton(
-              onPressed: addNewTask,
-              backgroundColor: Colors.teal,
-              elevation: 8,
-              hoverColor: const Color.fromARGB(255, 97, 202, 192),
-              child: const Icon(
-                Icons.add,
-                color: Colors.white,
-              )),
-        ],
-      ),
-    );
+        body: Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 90),
+            child: ListView.builder(
+                itemCount: todoList.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return Todo(
+                      taskName: todoList[index][0],
+                      taskCompleted: todoList[index][1],
+                      onTaskChanged: (value) => onChanged(index),
+                      deleteTask: () => onDeleteTask(index),
+                      onUpdateTask: () => onUpdateTask(index),
+                      editTextController: editTextController);
+                }),
+          ),
+        ),
+        floatingActionButton: FloatingButton(
+            textController: textController, addNewTask: addNewTask));
   }
 }
